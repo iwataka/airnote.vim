@@ -27,31 +27,13 @@ if !isdirectory(g:airnote_path)
   call mkdir(g:airnote_path, 'p')
 endif
 
-fu! airnote#edit(...)
-  let fname = a:0 ? a:1 : input(g:airnote_edit_prompt, '', 'customlist,NoteComplete')
-  if !empty(fname)
-    if empty(fnamemodify(fname, ':e'))
-      let fname .= s:note_ext()
-    endif
-    let path = s:note_dir().fname
-    silent exe 'edit '.path
-    if !filereadable(path)
-      let time = strftime(g:airnote_date_format)
-      if !empty(time)
-        let line = printf(&commentstring, time)
-        call setline(1, line)
-      endif
-    endif
-  endif
-endfu
-
 fu! airnote#delete(...)
-  let fname = a:0 ? a:1 : input(g:airnote_delete_prompt, '', 'customlist,NoteComplete')
+  let fname = a:0 ? a:1 : input(g:airnote_delete_prompt, '', 'customlist,airnote#complete')
   if !empty(fname)
     if empty(fnamemodify(fname, ':e'))
-      let fname .= s:note_ext()
+      let fname .= airnote#extension()
     endif
-    let path = s:note_dir().fname
+    let path = airnote#directory().fname
     if !filereadable(path)
       echo "\n".fname.' is not a existing file.'
     else
@@ -78,7 +60,7 @@ fu! airnote#grep(...)
   endif
 endfu
 
-fu! s:note_dir()
+fu! airnote#directory()
   if g:airnote_path =~ '.*/$'
     return g:airnote_path
   else
@@ -86,7 +68,7 @@ fu! s:note_dir()
   endif
 endfu
 
-fu! s:note_ext()
+fu! airnote#extension()
   if empty(g:airnote_suffix) || g:airnote_suffix =~ '^\..*'
     return g:airnote_suffix
   else
@@ -94,7 +76,7 @@ fu! s:note_ext()
   endif
 endfu
 
-fu! NoteComplete(A, L, P)
+fu! airnote#complete(A, L, P)
   let path = fnamemodify(g:airnote_path, ':p')
   let len = len(path)
   let cands = split(globpath(g:airnote_path, a:A.'*'))
