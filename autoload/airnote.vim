@@ -28,7 +28,13 @@ if !isdirectory(g:airnote_path)
 endif
 
 fu! airnote#delete(...)
-  let fname = a:0 ? a:1 : input(g:airnote_delete_prompt, '', 'customlist,airnote#complete')
+  if a:0
+    let fname = a:1
+  else
+    call inputsave()
+    let fname = input(g:airnote_delete_prompt, '', 'customlist,airnote#complete')
+    call inputrestore()
+  endif
   if !empty(fname)
     if empty(fnamemodify(fname, ':e'))
       let fname .= airnote#extension()
@@ -54,7 +60,13 @@ fu! airnote#delete(...)
 endfu
 
 fu! airnote#grep(...)
-  let keyword = a:0 ? a:1 : input(g:airnote_grep_prompt)
+  if a:0
+    let keyword = a:1
+  else
+    call inputsave()
+    let keyword = input(g:airnote_grep_prompt)
+    call inputrestore()
+  endif
   if !empty(keyword)
     silent exe printf(g:airnote_grep_format, keyword, g:airnote_path)
   endif

@@ -4,7 +4,13 @@ endif
 let g:loaded_airnote = 1
 
 fu! airnote#edit(cmd, ...)
-  let fname = a:0 ? a:1 : input(g:airnote_edit_prompt, '', 'customlist,airnote#complete')
+  if a:0
+    let fname = a:1
+  else
+    call inputsave()
+    let fname = input(g:airnote_edit_prompt, '', 'customlist,airnote#complete')
+    call inputrestore()
+  endif
   if !empty(fname)
     if empty(fnamemodify(fname, ':e'))
       let fname .= airnote#extension()
