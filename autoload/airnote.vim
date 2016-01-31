@@ -25,9 +25,6 @@ endif
 if !exists('g:airnote_default_open_cmd')
   let g:airnote_default_open_cmd = 'edit'
 endif
-if !exists('g:airnote_tag_formats')
-  let g:airnote_tag_formats = [ '\v^#+\s*(.*)' ]
-endif
 
 let s:cmd_fname_separator = '://'
 
@@ -64,21 +61,22 @@ fu! s:assure_suffix(str, s)
   return a:str
 endfu
 
-fu! s:tags(dir, formats)
-  let files = split(globpath(a:dir, '**/*'))
+fu! s:ctags(dir)
+  if !executable('ctags')
+    echoe 'Require ctags to search a note by tags'
+    return
+  endif
+  let files = ''
+  for fl in split(globpath(a:dir, '**/*'))
+    let files .= fl
+    let files .= ' '
+  endfor
   let result = {}
-  for fl in files
-    if filereadable(fl)
-      let lines = readfile(fl)
-      for i in range(len(lines))
-        let l = lines[i]
-        let pat = s:extract(l, a:formats)
-        if !empty(pat)
-          let item = { 'fname': fl, 'lnum': (i + 1) }
-          let result[pat] = item
-        endif
-      endfor
-    endif
+  let output = system('ctags --recurse=yes --append=no -f - '.files)
+  for line in split(output, '\v\n+')
+    let sep = split(split(line, '\V;"')[0], '\t')
+    let item = { 'fname': sep[1], 'cmd': sep[2] }
+    let result[sep[0]] = item
   endfor
   return result
 endfu
@@ -103,6 +101,7 @@ fu! s:open(cmd, fname)
 endfu
 
 fu! airnote#open(...)
+  unlet! s:tags
   if a:0
     let input = a:1
   else
@@ -113,13 +112,13 @@ fu! airnote#open(...)
   if !empty(input)
     if input =~ "^@"
       if !exists('s:tags')
-        let s:tags = s:tags(g:airnote_path, g:airnote_tag_formats)
+        let s:tags = s:ctags(g:airnote_path)
       endif
       let key = input[1:-1]
       if has_key(s:tags, key)
         let item = s:tags[input[1:-1]]
         call s:open(g:airnote_default_open_cmd, item.fname)
-        silent call cursor(str2nr(item.lnum), 0, 0)
+        silent exe item.cmd
       else
         echo "\rInvalid tag: ".key
       endif
@@ -195,7 +194,7 @@ endfu
 fu! airnote#open_complete(A, L, P)
   if a:A =~ "^@"
     if !exists('s:tags')
-      let s:tags = s:tags(g:airnote_path, g:airnote_tag_formats)
+      let s:tags = s:ctags(g:airnote_path)
     endif
     return map(filter(keys(s:tags), 'v:val =~ a:A[1:-1]'), '"@".v:val')
   else
