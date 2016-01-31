@@ -72,8 +72,11 @@ fu! s:ctags(dir)
   let output = system('ctags --recurse=yes --append=no -f - '.files)
   for line in split(output, '\v\n+')
     let sep = split(split(line, '\V;"')[0], '\t')
-    let item = { 'fname': sep[1], 'cmd': sep[2] }
-    let result[sep[0]] = item
+    " Cygwin Warning might be included
+    if len(sep) == 3
+      let item = { 'fname': sep[1], 'cmd': sep[2] }
+      let result[sep[0]] = item
+    endif
   endfor
   return result
 endfu
