@@ -19,6 +19,9 @@ endif
 if !exists('g:airnote_default_open_cmd')
   let g:airnote_default_open_cmd = 'edit'
 endif
+if !exists('g:airnote_auto_mkdir')
+  let g:airnote_auto_mkdir = 1
+endif
 
 let s:cmd_fname_separator = '://'
 
@@ -89,8 +92,13 @@ endfu
 
 " Open the specified file by the specified command if it's not active.
 fu! s:open(cmd, fname)
-  if fnamemodify(bufname('%'), ':p') != a:fname
-    silent exe a:cmd.' '.a:fname
+  let fname = fnamemodify(a:fname, ':p')
+  if fnamemodify(bufname('%'), ':p') != fname
+    let dir = fnamemodify(fname, ':h')
+    if g:airnote_auto_mkdir && !isdirectory(dir)
+      call mkdir(dir, 'p')
+    endif
+    silent exe a:cmd.' '.fname
   endif
 endfu
 
