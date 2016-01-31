@@ -1,5 +1,7 @@
 # Airnote
 
+## Intro
+
 Fast and simple note-taking plugin for Vim.
 This has the features like below:
 
@@ -19,7 +21,14 @@ This has the features like below:
   ```vim
   :Note @[tag-name]
   ```
-  If you use markdown as the note syntax, you don't have to do any settings for it!
+
+  This utilizes `ctags`, so you may have to add some settings to your `.ctags` file.
+  In case that you use markdown as a note syntax, add below sentence to `.ctags`.
+  ```
+  --langdef=markdown
+  --langmap=markdown:.md
+  --regex-markdown=/^#+\s*(.+)/\1/
+  ```
 
 ## Related Projects
 
