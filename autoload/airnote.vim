@@ -4,9 +4,6 @@ set cpoptions&vim
 if !exists('g:airnote_path')
   let g:airnote_path = expand('~/notes')
 endif
-if !exists('g:airnote_grep_format')
-  let g:airnote_grep_format = 'grep %s %s'
-endif
 if !exists('g:airnote_suffix')
   let g:airnote_suffix = 'md'
 endif
@@ -18,9 +15,6 @@ if !exists('g:airnote_open_prompt')
 endif
 if !exists('g:airnote_delete_prompt')
   let g:airnote_delete_prompt = 'Delete> '
-endif
-if !exists('g:airnote_grep_prompt')
-  let g:airnote_grep_prompt = 'Grep> '
 endif
 if !exists('g:airnote_default_open_cmd')
   let g:airnote_default_open_cmd = 'edit'
@@ -175,19 +169,6 @@ fu! airnote#delete(...)
         endif
       endif
     endif
-  endif
-endfu
-
-fu! airnote#grep(...)
-  if a:0
-    let keyword = a:1
-  else
-    call inputsave()
-    let keyword = input(g:airnote_grep_prompt)
-    call inputrestore()
-  endif
-  if !empty(keyword)
-    silent exe printf(g:airnote_grep_format, keyword, g:airnote_path)
   endif
 endfu
 
