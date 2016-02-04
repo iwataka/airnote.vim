@@ -1,9 +1,12 @@
-# Airnote
+# airnote.vim
 
-## Intro
+## Introduction
 
-Fast and simple note-taking plugin for Vim.
-This has the features like below:
+Note-taking is a huge part of your life and a source of your thoughts, so it should be as speedy and intuitive as possible.
+This plug-in allows you to open and delete notes blazing fast and, in addition, search one of them by tags and jump to there.
+You can do these things with appropriate completion and command design.
+
+## Usage
 
 + Edit or delete notes with file-name completion
 
@@ -15,7 +18,7 @@ This has the features like below:
 
   Use `:NoteDelete` command to delete a note.
 
-+ Search a note by tags with tag-name completion
++ Search one of your notes by tags with tag-name completion
 
   You can search the specified note by tags
   ```vim
@@ -29,6 +32,13 @@ This has the features like below:
   --langmap=markdown:.md
   --regex-markdown=/^#+\s*(.+)/\1/
   ```
+
+## Installation
+
+I recommend to use [vim-plug](https://github.com/junegunn/vim-plug/) if you don't have your favorite plug-in manager.
+```vim
+Plug 'iwataka/airnote.vim', { 'on': ['Note', 'NoteDelete'] }
+```
 
 ## Related Projects
 
