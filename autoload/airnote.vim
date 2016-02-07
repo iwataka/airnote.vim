@@ -59,8 +59,10 @@ fu! s:assure_suffix(str, s)
 endfu
 
 fu! s:ctags(dir)
-  if !executable('ctags')
-    echoe 'Require ctags to search a note by tags'
+  let cmd = executable('ctags-exuberant') ? 'ctags-exuberant' :
+        \ (executable('ctags') ? 'ctags' : '')
+  if empty(cmd)
+    echoe 'Require ctags-exuberant or ctags to search a note by tags'
     return
   endif
   let files = ''
@@ -69,7 +71,7 @@ fu! s:ctags(dir)
     let files .= ' '
   endfor
   let result = {}
-  let output = system('ctags --recurse=yes --append=no -f - '.files)
+  let output = system(cmd.' --recurse=yes --append=no -f - '.files)
   for line in split(output, '\v\n+')
     let sep = split(split(line, '\V;"')[0], '\t')
     " Cygwin Warning might be included
