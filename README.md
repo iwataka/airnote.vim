@@ -6,6 +6,19 @@ Note-taking is a huge part of your life and a source of your thoughts, so it sho
 This plug-in allows you to open and delete notes blazing fast and, in addition, search one of them by tags and jump to there.
 You can do these things with appropriate completion and command design.
 
+## Philosophy
+
+Any idea coming into your head goes away if you don't give a shape to it and you should write it down or do something like that to prevent it.
+At this point, the note you wrote is a little messy and needs to be more sophisticated.
+Rewriting it to new one and dividing it into multiple sub-categories, you'll get really important things.
+Thus, airnote.vim has these philosophies:
+
++ Fast access
++ Less commands and more functionalities
++ Category-based
++ Syntax-agnostic
++ Friendly with other distraction-free plug-in (like [goyo.vim](https://github.com/junegunn/goyo.vim/))
+
 ## Usage
 
 + Edit or delete notes with file-name completion
