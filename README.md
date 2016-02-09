@@ -57,3 +57,8 @@ Plug 'iwataka/airnote.vim', { 'on': ['Note', 'NoteDelete'] }
 
 + [memolist](https://github.com/glidenote/memolist.vim)
 + [vim-notes](https://github.com/xolox/vim-notes)
+
+## Todo
+
++ Write a document
++ Improve `ctags` feature for large number of notes
