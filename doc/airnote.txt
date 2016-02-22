@@ -1,0 +1,148 @@
+*airnote.txt* Simple and fast note-taking plugin for Vim
+*airnote*
+
+==============================================================================
+TOC                                                           *airnote-contents*
+
+  INTRO .......................... |airnote-intro|
+  PHILOSOPHY ..................... |airnote-philosophy|
+  USAGE .......................... |airnote-usage|
+  OPTIONS ........................ |airnote-options|
+  COMMANDS ....................... |airnote-commands|
+
+==============================================================================
+INTRO                                                            *airnote-intro*
+
+Note-taking is a huge part of your life and a source of your thoughts, so it
+should be as speedy and intuitive as possible.  This plug-in allows you to open
+and delete notes blazing fast and, in addition, search one of them by tags and
+jump to there.  You can do these things with appropriate completion and command
+design.
+
+==============================================================================
+PHILOSOPHY                                                  *airnote-philosophy*
+
+Any idea coming into your head goes away if you don't give a shape to it and
+you should write it down or do something like that to prevent it. At this
+point, the note you wrote is a little messy and needs to be more sophisticated.
+Rewriting it to new one and dividing it into multiple sub-categories, you'll
+get really important things.
+
+Thus, airnote.vim has these philosophies:
+
+  Fast access
+  Less commands and more functionalities
+  Syntax-agnostic (you can write notes with any filetypes)
+
+==============================================================================
+USAGE                                                            *airnote-usage*
+
+Edit or delete notes with file-name completion
+
+  You can edit a note by this command:
+>
+      :Note [file-name]
+<
+  or `:Note` with no arguments and then get a prompt.
+
+  Use `:NoteDelete` command to delete a note.
+
+Search one of your notes by tags with tag-name completion
+
+  You can search the specified note by tags
+>
+    :Note @[tag-name]
+<
+==============================================================================
+OPTIONS                                                        *airnote-options*
+                                                                *g:airnote_path*
+>
+    let g:airnote_path = expand('~/notes')
+<
+This specify the directory contains your notes.
+
+------------------------------------------------------------------------------
+                                                              *g:airnote_suffix*
+>
+    let g:airnote_suffix = 'md'
+<
+Airnote will create your notes with this suffix.
+
+------------------------------------------------------------------------------
+                                                         *g:airnote_date_format*
+
+>
+    let g:airnote_date_format = '%c'
+<
+Airnote will write the current date on the first line when creating new notes
+and you can specify the format of it. If you want to disable to write the
+current date, you should set an empty string to this variable.
+
+See also:
+>
+    :help strftime()
+<
+------------------------------------------------------------------------------
+                                                         *g:airnote_open_prompt*
+>
+    let g:airnote_open_prompt = 'Open> '
+<
+Airnote will show the prompt if you run `:Note` command without any arguments.
+You can change the prompt text by this variable.
+
+------------------------------------------------------------------------------
+                                                       *g:airnote_delete_prompt*
+>
+    let g:airnote_delete_prompt = 'Delete> '
+<
+Airnote will also show the prompt if you run `:NoteDelete` command without any
+arguments. You can change the prompt text by this variable.
+
+------------------------------------------------------------------------------
+                                                    *g:airnote_default_open_cmd*
+>
+    let g:airnote_default_open_cmd = 'edit'
+<
+Airnote will open notes in the current window by default. If you want to open
+notes in the vertically splitted window, set 'vsplit' to this variable.
+
+------------------------------------------------------------------------------
+                                                          *g:airnote_auto_mkdir*
+>
+    let g:airnote_auto_mkdir = 1
+<
+Airnote will automatically create non-existing directory when creating new
+notes. If you want to disable this feature, set 0 to this variable.
+
+==============================================================================
+COMMAND                                                       *airnote-commands*
+                                                                 *airnote-:Note*
+>
+    :Note [file-name]
+<
+Open an existing note or create a new note by the specified file name. If the
+number of arguments is 0, this command shows the prompt and you can input the
+file name.
+>
+    :Note @[tag-name]
+<
+When the argument starts with @, you can specify tag name and jump there.
+
+This utilizes `ctags`, so you may have to add some settings to your `.ctags`
+file. In case that you use markdown as a note syntax (it is the default one),
+add below sentence to `.ctags`.
+>
+    --langdef=markdown
+    --langmap=markdown:.md
+    --regex-markdown=/^#+\s*(.+)/\1/
+<
+------------------------------------------------------------------------------
+                                                     *airnote-:NoteDelete*
+>
+    :NoteDelete [file-name]
+<
+Delete an existing note by the specified file name. If the number of arguments
+is 0, this command shows the prompt and you can input the file name.
+
+==============================================================================
+vim:tw=78
