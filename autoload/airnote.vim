@@ -207,7 +207,7 @@ fu! airnote#delete_complete(A, L, P)
   let path = fnamemodify(g:airnote_path, ':p')
   let len = len(path)
   let cands = split(globpath(g:airnote_path, a:A.'*'))
-  return map(map(cands, 'isdirectory(v:val) ? v:val."/" : v:val'),
+  return map(map(cands, 'isdirectory(v:val) ? v:val.expand("/") : v:val'),
         \ 'strpart(v:val, len)')
 endfu
 
