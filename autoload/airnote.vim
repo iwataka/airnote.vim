@@ -40,24 +40,6 @@ fu! s:separate(str, sep)
   endif
 endfu
 
-" s:assure_prefix('md', '.') == '.md'
-" s:assure_prefix('.md', '.') == '.md'
-fu! s:assure_prefix(str, s)
-  if a:str !~ '\V\^'.a:s
-    return a:s.a:str
-  endif
-  return a:str
-endfu
-
-" s:assure_suffix('foo/bar', '/') == 'foo/bar/'
-" s:assure_suffix('foo/bar/', '/') == 'foo/bar/'
-fu! s:assure_suffix(str, s)
-  if a:str !~ '\V'.a:s.'\$'
-    return a:str.a:s
-  endif
-  return a:str
-endfu
-
 fu! s:ctags(dir)
   let cmd = executable('ctags-exuberant') ? 'ctags-exuberant' :
         \ (executable('ctags') ? 'ctags' : '')
@@ -131,15 +113,17 @@ fu! airnote#open(...)
       endif
     else
       if empty(fnamemodify(input, ':e'))
-        let input .= s:assure_prefix(g:airnote_suffix, '.')
+        " Input string may be followed by dot, such as 'foo.'
+        let input = substitute(input, '\v\.?$', '', '')
+        let input .= substitute(g:airnote_suffix, '\v^\.?', '.', '')
       endif
       let sep = s:separate(input, s:cmd_fname_separator)
       if type(sep) == type('')
-        let path = s:assure_suffix(g:airnote_path, '/').sep
+        let path = substitute(g:airnote_path, '\v/?$', '/', '').sep
         call s:open(g:airnote_default_open_cmd, path)
       else
         let [cmd, fname] = sep
-        let path = s:assure_suffix(g:airnote_path, '/').fname
+        let path = substitute(g:airnote_path, '\v/?$', '/', '').fname
         call s:open(cmd, path)
       endif
       if !filereadable(path)
@@ -163,9 +147,9 @@ fu! airnote#delete(...)
   endif
   if !empty(fname)
     if empty(fnamemodify(fname, ':e'))
-      let fname .= s:assure_prefix(g:airnote_suffix, '.')
+      let fname .= substitute(g:airnote_suffix, '\v^\.?', '.', '')
     endif
-    let path = s:assure_suffix(g:airnote_path, '/').fname
+    let path = substitute(g:airnote_path, '\v/?$', '/', '').fname
     if !filereadable(path)
       echo "\r".fname.' is not a existing file.'
     else
