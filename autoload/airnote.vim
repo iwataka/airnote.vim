@@ -30,6 +30,8 @@ if !exists('g:airnote_ctags_executable')
 endif
 
 let s:cmd_fname_separator = '://'
+let s:dir2localtime = {}
+let s:dir2tags = {}
 
 if !isdirectory(g:airnote_path)
   call mkdir(g:airnote_path, 'p')
@@ -47,26 +49,36 @@ fu! s:separate(str, sep)
 endfu
 
 fu! s:ctags(dir)
+  " Remove trailing slashes
+  let dir = substitute(a:dir, '\v/*$', '', '')
+  " Set 0 if no ctags search has occurred so far
+  let last_update = get(s:dir2localtime, dir, 0)
   let cmd = g:airnote_ctags_executable
   if empty(cmd)
     return {}
   endif
-  let files = ''
-  for fl in split(globpath(a:dir, '**/*'))
-    let files .= fl
-    let files .= ' '
-  endfor
-  let result = {}
-  let output = system(cmd.' --recurse=yes --append=no -f - '.files)
-  for line in split(output, '\v\n+')
-    let sep = split(split(line, '\V;"')[0], '\t')
-    " Cygwin Warning might be included
-    if len(sep) == 3
-      let item = { 'fname': sep[1], 'cmd': sep[2] }
-      let result[sep[0]] = item
-    endif
-  endfor
-  return result
+  let files = split(globpath(dir, '**/*'), '\n')
+  let tags = get(s:dir2tags, dir, {})
+
+  " Filter notes by their last modification time
+  let files = filter(files, 'getftime(v:val) > last_update')
+  " Update if there are files modified from the last ctags search
+  if !empty(files)
+    let tags = filter(tags, 'index(files, v:val.fname) == -1')
+    let output = system(cmd.' --recurse=yes --append=no -f - '.join(files, ' '))
+    for line in split(output, '\v\n+')
+      let sep = split(split(line, '\V;"')[0], '\t')
+      " Cygwin Warning might be included
+      if len(sep) == 3
+        let item = { 'fname': sep[1], 'cmd': sep[2] }
+        let tags[sep[0]] = item
+      endif
+    endfor
+  endif
+
+  let s:dir2tags[dir] = tags
+  let s:dir2localtime[dir] = localtime()
+  return tags
 endfu
 
 " Open the specified file by the specified command if it's not active.
@@ -91,6 +103,7 @@ fu! airnote#open(...)
     call inputrestore()
   endif
   if !empty(input)
+    " tag jump
     if input =~ "^@"
       if !exists('s:tags')
         let s:tags = s:ctags(g:airnote_path)
@@ -103,6 +116,7 @@ fu! airnote#open(...)
       else
         echo "\rInvalid tag: ".key
       endif
+    " just open the specified file
     else
       if empty(fnamemodify(input, ':e'))
         " Input string may be followed by dot, such as 'foo.'
