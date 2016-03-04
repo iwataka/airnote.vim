@@ -1,6 +1,8 @@
+" INITIALIZATION {{{1
 let s:save_cpo = &cpoptions
 set cpoptions&vim
 
+" OPTIONS {{{1
 if !exists('g:airnote_path')
   let g:airnote_path = expand('~/notes')
 endif
@@ -48,6 +50,7 @@ if !isdirectory(g:airnote_cache_path)
   call mkdir(g:airnote_cache_path, 'p')
 endif
 
+" CACHING {{{1
 fu! s:localtime_cache_file()
   return substitute(g:airnote_cache_path, '\v/*$', '', '').'/localtime.txt'
 endfu
@@ -81,51 +84,7 @@ if g:airnote_enable_cache
   call s:read_cache()
 endif
 
-fu! s:ctags(dir)
-  " Remove trailing slashes
-  let dir = substitute(a:dir, '\v/*$', '', '')
-  " Set 0 if no ctags search has occurred so far
-  let last_update = get(s:dir2localtime, dir, 0)
-  let cmd = g:airnote_ctags_executable
-  if empty(cmd)
-    return {}
-  endif
-  let files = split(globpath(dir, '**/*'), '\n')
-  let tags = get(s:dir2tags, dir, {})
-
-  " Filter notes by their last modification time
-  let files = filter(files, 'getftime(v:val) > last_update')
-  " Update if there are files modified from the last ctags search
-  if !empty(files)
-    let tags = filter(tags, 'index(files, v:val.fname) == -1')
-    let output = system(cmd.' --recurse=yes --append=no -f - '.join(files, ' '))
-    for line in split(output, '\v\n+')
-      let sep = split(split(line, '\V;"')[0], '\t')
-      " Cygwin Warning might be included
-      if len(sep) == 3
-        let item = { 'fname': sep[1], 'cmd': escape(sep[2], '[]') }
-        let tags[sep[0]] = item
-      endif
-    endfor
-  endif
-
-  let s:dir2tags[dir] = tags
-  let s:dir2localtime[dir] = localtime()
-  return tags
-endfu
-
-" Open the specified file by the specified command if it's not active.
-fu! s:open(cmd, fname)
-  let fname = fnamemodify(a:fname, ':p')
-  if fnamemodify(bufname('%'), ':p') != fname
-    let dir = fnamemodify(fname, ':h')
-    if g:airnote_auto_mkdir && !isdirectory(dir)
-      call mkdir(dir, 'p')
-    endif
-    silent exe a:cmd.' '.fname
-  endif
-endfu
-
+" PUBLIC {{{1
 fu! airnote#open(...)
   if a:0
     let input = a:1
@@ -207,6 +166,52 @@ fu! airnote#delete(...)
   endif
 endfu
 
+" UTILITY {{{1
+fu! s:ctags(dir)
+  " Remove trailing slashes
+  let dir = substitute(a:dir, '\v/*$', '', '')
+  " Set 0 if no ctags search has occurred so far
+  let last_update = get(s:dir2localtime, dir, 0)
+  let cmd = g:airnote_ctags_executable
+  if empty(cmd)
+    return {}
+  endif
+  let files = split(globpath(dir, '**/*'), '\n')
+  let tags = get(s:dir2tags, dir, {})
+
+  " Filter notes by their last modification time
+  let files = filter(files, 'getftime(v:val) > last_update')
+  " Update if there are files modified from the last ctags search
+  if !empty(files)
+    let tags = filter(tags, 'index(files, v:val.fname) == -1')
+    let output = system(cmd.' --recurse=yes --append=no -f - '.join(files, ' '))
+    for line in split(output, '\v\n+')
+      let sep = split(split(line, '\V;"')[0], '\t')
+      " Cygwin Warning might be included
+      if len(sep) == 3
+        let tags[sep[0]] = { 'fname': sep[1], 'cmd': escape(sep[2], '[]') }
+      endif
+    endfor
+  endif
+
+  let s:dir2tags[dir] = tags
+  let s:dir2localtime[dir] = localtime()
+  return tags
+endfu
+
+" Open the specified file by the specified command if it's not active.
+fu! s:open(cmd, fname)
+  let fname = fnamemodify(a:fname, ':p')
+  if fnamemodify(bufname('%'), ':p') != fname
+    let dir = fnamemodify(fname, ':h')
+    if g:airnote_auto_mkdir && !isdirectory(dir)
+      call mkdir(dir, 'p')
+    endif
+    silent exe a:cmd.' '.fname
+  endif
+endfu
+
+" COMPLETION {{{1
 fu! airnote#tag_complete(A, L, P)
   if !exists('s:tags')
     let s:tags = s:ctags(g:airnote_path)
@@ -222,5 +227,6 @@ fu! airnote#delete_complete(A, L, P)
         \ 'strpart(v:val, len)')
 endfu
 
+" CLEANUP {{{1
 let &cpo = s:save_cpo
 unlet s:save_cpo
