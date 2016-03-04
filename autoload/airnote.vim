@@ -28,6 +28,12 @@ if !exists('g:airnote_ctags_executable')
         \ executable('ctags') ? 'ctags' :
         \ ''
 endif
+if !exists('g:airnote_enable_cache')
+  let g:airnote_enable_cache = 0
+endif
+if !exists('g:airnote_cache_path')
+  let g:airnote_cache_path = expand('~/.cache/airnote.vim')
+endif
 
 let s:cmd_fname_separator = '://'
 let s:dir2localtime = {}
@@ -35,6 +41,42 @@ let s:dir2tags = {}
 
 if !isdirectory(g:airnote_path)
   call mkdir(g:airnote_path, 'p')
+endif
+if !isdirectory(g:airnote_cache_path)
+  call mkdir(g:airnote_cache_path, 'p')
+endif
+
+fu! s:localtime_cache_file()
+  return substitute(g:airnote_cache_path, '\v/*$', '', '').'/localtime.txt'
+endfu
+
+fu! s:tags_cache_file()
+  return substitute(g:airnote_cache_path, '\v/*$', '', '').'/tags.txt'
+endfu
+
+fu! s:write_cache()
+  call writefile(split(string(s:dir2localtime), '\n'), s:localtime_cache_file())
+  call writefile(split(string(s:dir2tags), '\n'), s:tags_cache_file())
+endfu
+
+fu! s:read_cache()
+  let localtime_cache = s:localtime_cache_file()
+  let tags_cache = s:tags_cache_file()
+  if filereadable(localtime_cache)
+    exe 'let s:dir2localtime = '.join(readfile(localtime_cache), ' ')
+  endif
+  if filereadable(tags_cache)
+    exe 'let s:dir2tags = '.join(readfile(tags_cache), ' ')
+  endif
+endfu
+
+augroup airnote
+  autocmd!
+  autocmd VimLeave * if g:airnote_enable_cache | call s:write_cache() | endif
+augroup END
+
+if g:airnote_enable_cache
+  call s:read_cache()
 endif
 
 " s:separate('note.md', '://') == 'note.md'

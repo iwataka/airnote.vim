@@ -117,12 +117,28 @@ notes. If you want to disable this feature, set 0 to this variable.
 ------------------------------------------------------------------------------
                                                     *g:airnote_ctags_executable*
 >
-  let g:airnote_ctags_executable =
-        \ executable('ctags-exuberant') ? 'ctags-exuberant' :
-        \ executable('ctags') ? 'ctags' :
-        \ ''
+    let g:airnote_ctags_executable =
+          \ executable('ctags-exuberant') ? 'ctags-exuberant' :
+          \ executable('ctags') ? 'ctags' :
+          \ ''
 <
 You can specify ctags executable file if needed.
+
+------------------------------------------------------------------------------
+                                                        *g:airnote_enable_cache*
+>
+    let g:airnote_enable_cache = 0
+<
+If this value is non-zero, Airnote automatically caches ctags search results
+and reuses them the next time.
+
+------------------------------------------------------------------------------
+                                                          *g:airnote_cache_path*
+>
+    let g:airnote_cache_path = expand('~/.cache/airnote.vim')
+<
+Airnote caches ctags search results in the directory specified by this value.
+This is unused when `g:airnote_enable_cache` is equal to 0 or undefined.
 
 ==============================================================================
 COMMAND                                                       *airnote-commands*
