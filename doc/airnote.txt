@@ -9,6 +9,7 @@ TOC                                                           *airnote-contents*
     USAGE .......................... |airnote-usage|
     OPTIONS ........................ |airnote-options|
     COMMANDS ....................... |airnote-commands|
+    CONFIGURATION .................. |airnote-configuration|
 
 ==============================================================================
 INTRO                                                            *airnote-intro*
@@ -154,6 +155,16 @@ add below sentence to `.ctags`.
     --langdef=markdown
     --langmap=markdown:.md
     --regex-markdown=/^#+\s*(.+)/\1/
+<
+==============================================================================
+CONFIGURATION                                            *airnote-configuration*
+
+My configuration for Airnote is like this:
+>
+    let g:airnote_enable_cache = 1
+    nnoremap <leader>nn :Note<cr>
+    nnoremap <leader>nd :NoteDelete<cr>
+    nnoremap <leader>nt :NoteTag<cr>
 <
 ==============================================================================
 vim:tw=78:ft=help
