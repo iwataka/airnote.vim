@@ -22,6 +22,12 @@ endif
 if !exists('g:airnote_auto_mkdir')
   let g:airnote_auto_mkdir = 1
 endif
+if !exists('g:airnote_ctags_executable')
+  let g:airnote_ctags_executable =
+        \ executable('ctags-exuberant') ? 'ctags-exuberant' :
+        \ executable('ctags') ? 'ctags' :
+        \ ''
+endif
 
 let s:cmd_fname_separator = '://'
 
@@ -41,11 +47,9 @@ fu! s:separate(str, sep)
 endfu
 
 fu! s:ctags(dir)
-  let cmd = executable('ctags-exuberant') ? 'ctags-exuberant' :
-        \ (executable('ctags') ? 'ctags' : '')
+  let cmd = g:airnote_ctags_executable
   if empty(cmd)
-    echoe 'Require ctags-exuberant or ctags to search a note by tags'
-    return
+    return {}
   endif
   let files = ''
   for fl in split(globpath(a:dir, '**/*'))

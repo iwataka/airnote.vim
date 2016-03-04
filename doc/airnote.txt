@@ -114,6 +114,16 @@ notes in the vertically splitted window, set 'vsplit' to this variable.
 Airnote will automatically create non-existing directory when creating new
 notes. If you want to disable this feature, set 0 to this variable.
 
+------------------------------------------------------------------------------
+                                                    *g:airnote_ctags_executable*
+>
+  let g:airnote_ctags_executable =
+        \ executable('ctags-exuberant') ? 'ctags-exuberant' :
+        \ executable('ctags') ? 'ctags' :
+        \ ''
+<
+You can specify ctags executable file if needed.
+
 ==============================================================================
 COMMAND                                                       *airnote-commands*
                                                                  *airnote-:Note*
