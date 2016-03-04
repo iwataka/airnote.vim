@@ -70,7 +70,7 @@ fu! s:ctags(dir)
       let sep = split(split(line, '\V;"')[0], '\t')
       " Cygwin Warning might be included
       if len(sep) == 3
-        let item = { 'fname': sep[1], 'cmd': sep[2] }
+        let item = { 'fname': sep[1], 'cmd': escape(sep[2], '[]') }
         let tags[sep[0]] = item
       endif
     endfor
