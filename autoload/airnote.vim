@@ -65,18 +65,6 @@ fu! s:ctags(dir)
   return result
 endfu
 
-fu! s:extract(line, formats)
-  for f in a:formats
-    if a:line =~ f
-      let pat = substitute(a:line, f, '\1', '')
-      if !empty(pat)
-        return pat
-      endif
-    endif
-  endfor
-  return ''
-endfu
-
 " Open the specified file by the specified command if it's not active.
 fu! s:open(cmd, fname)
   let fname = fnamemodify(a:fname, ':p')
