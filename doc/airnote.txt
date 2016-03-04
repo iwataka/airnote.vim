@@ -4,11 +4,11 @@
 ==============================================================================
 TOC                                                           *airnote-contents*
 
-  INTRO .......................... |airnote-intro|
-  PHILOSOPHY ..................... |airnote-philosophy|
-  USAGE .......................... |airnote-usage|
-  OPTIONS ........................ |airnote-options|
-  COMMANDS ....................... |airnote-commands|
+    INTRO .......................... |airnote-intro|
+    PHILOSOPHY ..................... |airnote-philosophy|
+    USAGE .......................... |airnote-usage|
+    OPTIONS ........................ |airnote-options|
+    COMMANDS ....................... |airnote-commands|
 
 ==============================================================================
 INTRO                                                            *airnote-intro*
@@ -30,36 +30,18 @@ get really important things.
 
 Thus, airnote.vim has these philosophies:
 
-  Fast access
-  Less commands and more functionalities
-  Syntax-agnostic (you can write notes with any filetypes)
+    Fast access
+    Less commands and more functionalities
+    Syntax-agnostic (you can write notes with any filetypes)
 
 ==============================================================================
 USAGE                                                            *airnote-usage*
 
-Edit or delete notes with file-name completion
+You can use 3 commands to manage your notes:
 
-  You can edit a note by this command:
->
-      :Note [file-name]
-<
-  or `:Note` with no arguments and then get a prompt.
-
-  Use `:NoteDelete` command to delete a note.
-
-Search one of your notes by tags with tag-name completion
-
-  You can search the specified note by tags
->
-    :Note @[tag-name]
-<
-==============================================================================
-OPTIONS                                                        *airnote-options*
-                                                                *g:airnote_path*
->
-    let g:airnote_path = expand('~/notes')
-<
-This specify the directory contains your notes.
+    `:Note` to open your notes.
+    `:NoteTag` to search your notes by `ctags`.
+    `:NoteDelete` to delete your notes.
 
 ------------------------------------------------------------------------------
                                                               *g:airnote_suffix*
@@ -146,13 +128,24 @@ COMMAND                                                       *airnote-commands*
 >
     :Note [file-name]
 <
-Open an existing note or create a new note by the specified file name. If the
-number of arguments is 0, this command shows the prompt and you can input the
-file name.
+Open an existing note or create a new note by the specified file name. If no
+file name is given, this command shows the prompt and you can input the file
+name there.
+------------------------------------------------------------------------------
+                                                           *airnote-:NoteDelete*
 >
-    :Note @[tag-name]
+    :NoteDelete [file-name]
 <
-When the argument starts with @, you can specify tag name and jump there.
+Delete an existing note by the specified file name. If no file name is given,
+is 0, this command shows the prompt and you can input the file name there.
+
+------------------------------------------------------------------------------
+                                                              *airnote-:NoteTag*
+>
+    :NoteTag [tag-name]
+<
+Search an existing note by the specified tag name. If no tag name is given,
+this command shows the prompt and you can input the tag name there.
 
 This utilizes `ctags`, so you may have to add some settings to your `.ctags`
 file. In case that you use markdown as a note syntax (it is the default one),
@@ -162,13 +155,5 @@ add below sentence to `.ctags`.
     --langmap=markdown:.md
     --regex-markdown=/^#+\s*(.+)/\1/
 <
-------------------------------------------------------------------------------
-                                                     *airnote-:NoteDelete*
->
-    :NoteDelete [file-name]
-<
-Delete an existing note by the specified file name. If the number of arguments
-is 0, this command shows the prompt and you can input the file name.
-
 ==============================================================================
-vim:tw=78
+vim:tw=78:ft=help

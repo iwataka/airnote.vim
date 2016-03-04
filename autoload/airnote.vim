@@ -13,6 +13,9 @@ endif
 if !exists('g:airnote_open_prompt')
   let g:airnote_open_prompt = 'Open> '
 endif
+if !exists('g:airnote_tag_prompt')
+  let g:airnote_tag_prompt = 'Tag> '
+endif
 if !exists('g:airnote_delete_prompt')
   let g:airnote_delete_prompt = 'Delete> '
 endif
@@ -35,7 +38,6 @@ if !exists('g:airnote_cache_path')
   let g:airnote_cache_path = expand('~/.cache/airnote.vim')
 endif
 
-let s:cmd_fname_separator = '://'
 let s:dir2localtime = {}
 let s:dir2tags = {}
 
@@ -78,17 +80,6 @@ augroup END
 if g:airnote_enable_cache
   call s:read_cache()
 endif
-
-" s:separate('note.md', '://') == 'note.md'
-" s:separate('edit://note.md', '://') == ['edit', 'note.md']
-fu! s:separate(str, sep)
-  let i = stridx(a:str, a:sep)
-  if i == -1
-    return a:str
-  else
-    return [a:str[0:(i - 1)], a:str[(i + len(a:sep)):-1]]
-  endif
-endfu
 
 fu! s:ctags(dir)
   " Remove trailing slashes
@@ -136,52 +127,51 @@ fu! s:open(cmd, fname)
 endfu
 
 fu! airnote#open(...)
-  unlet! s:tags
   if a:0
     let input = a:1
   else
+    unlet! s:tags
+    let cwd = getcwd()
+    exe 'cd '.g:airnote_path
     call inputsave()
-    let input = input(g:airnote_open_prompt, '', 'customlist,airnote#open_complete')
+    let input = input(g:airnote_open_prompt, '', 'file')
     call inputrestore()
+    exe 'cd '.cwd
   endif
   if !empty(input)
-    " tag jump
-    if input =~ "^@"
-      if !exists('s:tags')
-        let s:tags = s:ctags(g:airnote_path)
-      endif
-      let key = input[1:-1]
-      if has_key(s:tags, key)
-        let item = s:tags[input[1:-1]]
-        call s:open(g:airnote_default_open_cmd, item.fname)
-        silent exe item.cmd
-      else
-        echo "\rInvalid tag: ".key
-      endif
-    " just open the specified file
-    else
-      if empty(fnamemodify(input, ':e'))
-        " Input string may be followed by dot, such as 'foo.'
-        let input = substitute(input, '\v\.?$', '', '')
-        let input .= substitute(g:airnote_suffix, '\v^\.?', '.', '')
-      endif
-      let sep = s:separate(input, s:cmd_fname_separator)
-      if type(sep) == type('')
-        let path = substitute(g:airnote_path, '\v/?$', '/', '').sep
-        call s:open(g:airnote_default_open_cmd, path)
-      else
-        let [cmd, fname] = sep
-        let path = substitute(g:airnote_path, '\v/?$', '/', '').fname
-        call s:open(cmd, path)
-      endif
-      if !filereadable(path)
-        let time = strftime(g:airnote_date_format)
-        if !empty(time)
-          let line = printf(&commentstring, time)
-          call setline(1, line)
-        endif
+    if empty(fnamemodify(input, ':e'))
+      " Input string may be followed by dot, such as 'foo.'
+      let input = substitute(input, '\v\.?$', '', '')
+      let input .= substitute(g:airnote_suffix, '\v^\.?', '.', '')
+    endif
+    let path = substitute(g:airnote_path, '\v/?$', '/', '').input
+    call s:open(g:airnote_default_open_cmd, path)
+    if !filereadable(path)
+      let time = strftime(g:airnote_date_format)
+      if !empty(time)
+        let line = printf(&commentstring, time)
+        call setline(1, line)
       endif
     endif
+  endif
+endfu
+
+fu! airnote#tag(...)
+  if a:0
+    let input = a:1
+  else
+    unlet! s:tags
+    call inputsave()
+    let input = input(g:airnote_tag_prompt, '', 'customlist,airnote#tag_complete')
+    call inputrestore()
+  endif
+  if !exists('s:tags')
+    let s:tags = s:ctags(g:airnote_path)
+  endif
+  if has_key(s:tags, input)
+    let item = s:tags[input]
+    call s:open(g:airnote_default_open_cmd, item.fname)
+    silent exe item.cmd
   endif
 endfu
 
@@ -217,22 +207,11 @@ fu! airnote#delete(...)
   endif
 endfu
 
-fu! airnote#open_complete(A, L, P)
-  if a:A =~ "^@"
-    if !exists('s:tags')
-      let s:tags = s:ctags(g:airnote_path)
-    endif
-    return map(filter(keys(s:tags), 'v:val =~ a:A[1:-1]'), '"@".v:val')
-  else
-    let sep = s:separate(a:A, s:cmd_fname_separator)
-    if type(sep) == type('')
-      return airnote#delete_complete(a:A, a:L, a:P)
-    elseif type(sep) == type([])
-      let [cmd, fname] = sep
-      let cands = airnote#delete_complete(fname, a:L, a:P)
-      return map(cands, 'cmd.s:cmd_fname_separator.v:val')
-    endif
+fu! airnote#tag_complete(A, L, P)
+  if !exists('s:tags')
+    let s:tags = s:ctags(g:airnote_path)
   endif
+  return filter(keys(s:tags), 'v:val =~ a:A')
 endfu
 
 fu! airnote#delete_complete(A, L, P)

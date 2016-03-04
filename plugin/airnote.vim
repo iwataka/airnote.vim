@@ -5,5 +5,7 @@ let g:loaded_airnote = 1
 
 com! -nargs=? -complete=customlist,airnote#open_complete Note
       \ call airnote#open(<f-args>)
+com! -nargs=? -complete=customlist,airnote#tag_complete NoteTag
+      \ call airnote#tag(<f-args>)
 com! -nargs=? -complete=customlist,airnote#delete_complete NoteDelete
       \ call airnote#delete(<f-args>)
