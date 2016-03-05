@@ -1,6 +1,8 @@
+" INITIALIZATION {{{1
 let s:save_cpo = &cpoptions
 set cpoptions&vim
 
+" SETUP {{{1
 if !exists('g:airnote_path')
   let g:airnote_path = expand('~/notes')
 endif
@@ -46,6 +48,7 @@ if !isdirectory(g:airnote_cache_path)
   call mkdir(g:airnote_cache_path, 'p')
 endif
 
+" CACHING {{{1
 fu! s:localtime_cache_file()
   return substitute(g:airnote_cache_path, '\v/*$', '', '').'/localtime.txt'
 endfu
@@ -79,6 +82,7 @@ if g:airnote_enable_cache
   call s:read_cache()
 endif
 
+" UTILITY {{{1
 " s:separate('note.md', '://') == 'note.md'
 " s:separate('edit://note.md', '://') == ['edit', 'note.md']
 fu! s:separate(str, sep)
@@ -135,6 +139,7 @@ fu! s:open(cmd, fname)
   endif
 endfu
 
+" PUBLIC {{{1
 fu! airnote#open(...)
   unlet! s:tags
   if a:0
@@ -217,6 +222,7 @@ fu! airnote#delete(...)
   endif
 endfu
 
+" COMPLETION {{{1
 fu! airnote#open_complete(A, L, P)
   if a:A =~ "^@"
     if !exists('s:tags')
@@ -243,5 +249,6 @@ fu! airnote#delete_complete(A, L, P)
         \ 'strpart(v:val, len)')
 endfu
 
+" CLEANUP {{{1
 let &cpo = s:save_cpo
 unlet s:save_cpo
