@@ -24,6 +24,9 @@ endif
 if !exists('g:airnote_auto_mkdir')
   let g:airnote_auto_mkdir = 1
 endif
+if !exists('g:airnote_auto_foldopen')
+  let g:airnote_auto_foldopen = &foldopen =~# 'search'
+endif
 if !exists('g:airnote_ctags_executable')
   let g:airnote_ctags_executable =
         \ executable('ctags-exuberant') ? 'ctags-exuberant' :
@@ -154,6 +157,14 @@ fu! airnote#open(...)
         if len(items) > 1
           call setqflist(items)
           echo len(items).' tags found'
+        endif
+        if g:airnote_auto_foldopen
+          let i = 0
+          let level = foldlevel(line('.'))
+          while i < level
+            foldopen
+            let i += 1
+          endwhile
         endif
       else
         echo "\rInvalid tag: ".key

@@ -111,8 +111,18 @@ notes in the vertically splitted window, set 'vsplit' to this variable.
 >
     let g:airnote_auto_mkdir = 1
 <
-Airnote will automatically create non-existing directory when creating new
-notes. If you want to disable this feature, set 0 to this variable.
+By default, Airnote will automatically create non-existing directory when
+creating new notes. If you want to disable this feature, set 0 to this
+variable.
+
+------------------------------------------------------------------------------
+                                                       *g:airnote_auto_foldopen*
+>
+    let g:airnote_auto_foldopen = &foldopen =~# 'search'
+<
+If this value is non-zero, Airnote automatically open foldings when jumping to
+the specified tags. By default, if `foldopen` option includes `search` item,
+this feature is automatically enabled.
 
 ------------------------------------------------------------------------------
                                                     *g:airnote_ctags_executable*
