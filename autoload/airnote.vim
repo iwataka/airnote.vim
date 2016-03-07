@@ -37,7 +37,6 @@ if !exists('g:airnote_cache_path')
   let g:airnote_cache_path = expand('~/.cache/airnote.vim')
 endif
 
-let s:cmd_fname_separator = '://'
 let s:dir2localtime = {}
 let s:dir2tags = {}
 
@@ -81,18 +80,6 @@ augroup END
 if g:airnote_enable_cache
   call s:read_cache()
 endif
-
-" UTILITY {{{1
-" s:separate('note.md', '://') == 'note.md'
-" s:separate('edit://note.md', '://') == ['edit', 'note.md']
-fu! s:separate(str, sep)
-  let i = stridx(a:str, a:sep)
-  if i == -1
-    return a:str
-  else
-    return [a:str[0:(i - 1)], a:str[(i + len(a:sep)):-1]]
-  endif
-endfu
 
 fu! s:ctags(dir)
   " Remove trailing slashes
@@ -178,15 +165,8 @@ fu! airnote#open(...)
         let input = substitute(input, '\v\.?$', '', '')
         let input .= substitute(g:airnote_suffix, '\v^\.?', '.', '')
       endif
-      let sep = s:separate(input, s:cmd_fname_separator)
-      if type(sep) == type('')
-        let path = substitute(g:airnote_path, '\v/?$', '/', '').sep
-        call s:open(g:airnote_default_open_cmd, path)
-      else
-        let [cmd, fname] = sep
-        let path = substitute(g:airnote_path, '\v/?$', '/', '').fname
-        call s:open(cmd, path)
-      endif
+      let path = substitute(g:airnote_path, '\v/?$', '/', '').input
+      call s:open(g:airnote_default_open_cmd, path)
       if !filereadable(path)
         let time = strftime(g:airnote_date_format)
         if !empty(time)
@@ -238,14 +218,7 @@ fu! airnote#open_complete(A, L, P)
     endif
     return map(filter(keys(s:tags), 'v:val =~ a:A[1:-1]'), '"@".v:val')
   else
-    let sep = s:separate(a:A, s:cmd_fname_separator)
-    if type(sep) == type('')
-      return airnote#delete_complete(a:A, a:L, a:P)
-    elseif type(sep) == type([])
-      let [cmd, fname] = sep
-      let cands = airnote#delete_complete(fname, a:L, a:P)
-      return map(cands, 'cmd.s:cmd_fname_separator.v:val')
-    endif
+    return airnote#delete_complete(a:A, a:L, a:P)
   endif
 endfu
 
