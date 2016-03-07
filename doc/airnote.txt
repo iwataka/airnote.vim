@@ -152,7 +152,8 @@ file name.
 >
     :Note @[tag-name]
 <
-When the argument starts with @, you can specify tag name and jump there.
+When the argument starts with @, you can specify tag name and jump there. If
+multiple tags which have the same name are found, they fill quickfix list.
 
 This utilizes `ctags`, so you may have to add some settings to your `.ctags`
 file. In case that you use markdown as a note syntax (it is the default one),

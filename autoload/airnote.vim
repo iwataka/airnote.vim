@@ -104,20 +104,23 @@ fu! s:ctags(dir)
     return {}
   endif
   let files = split(globpath(dir, '**/*'), '\n')
+  call filter(files, 'filereadable(v:val)')
   let tags = get(s:dir2tags, dir, {})
 
   " Filter notes by their last modification time
-  let files = filter(files, 'getftime(v:val) > last_update')
+  call filter(files, 'getftime(v:val) > last_update')
   " Update if there are files modified from the last ctags search
   if !empty(files)
-    let tags = filter(tags, 'index(files, v:val.fname) == -1')
-    let output = system(cmd.' --recurse=yes --append=no -f - '.join(files, ' '))
+    call map(tags, 'filter(v:val, "index(files, v:val.filename) == -1")')
+    call filter(tags, '!empty(v:val)')
+    let output = system(cmd.' --recurse=no --append=no -f - '.join(files, ' '))
     for line in split(output, '\v\n+')
       let sep = split(split(line, '\V;"')[0], '\t')
       " Cygwin Warning might be included
       if len(sep) == 3
-        let item = { 'fname': sep[1], 'cmd': escape(sep[2], '[]') }
-        let tags[sep[0]] = item
+        let pat = substitute(escape(sep[2], '[]'), '\v^\s*/|/\s*$', '', 'g')
+        let item = { 'filename': sep[1], 'pattern': pat }
+        let tags[sep[0]] = add(get(tags, sep[0], []), item)
       endif
     endfor
   endif
@@ -157,9 +160,14 @@ fu! airnote#open(...)
       endif
       let key = input[1:-1]
       if has_key(s:tags, key)
-        let item = s:tags[input[1:-1]]
-        call s:open(g:airnote_default_open_cmd, item.fname)
-        silent exe item.cmd
+        let items = s:tags[input[1:-1]]
+        let item = items[0]
+        call s:open(g:airnote_default_open_cmd, item.filename)
+        call search(item.pattern)
+        if len(items) > 1
+          call setqflist(items)
+          echo len(items).' tags found'
+        endif
       else
         echo "\rInvalid tag: ".key
       endif
