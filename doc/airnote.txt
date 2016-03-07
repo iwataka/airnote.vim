@@ -165,6 +165,13 @@ file name.
 When the argument starts with @, you can specify tag name and jump there. If
 multiple tags which have the same name are found, they fill quickfix list.
 
+If you want to open quickfix window automatically, write to your .vimrc
+something like this:
+
+>
+    autocmd QuickFixCmdPost airnote cwindow
+<
+
 This utilizes `ctags`, so you may have to add some settings to your `.ctags`
 file. In case that you use markdown as a note syntax (it is the default one),
 add below sentence to `.ctags`.

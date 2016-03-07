@@ -155,7 +155,9 @@ fu! airnote#open(...)
         call s:open(g:airnote_default_open_cmd, item.filename)
         call search(item.pattern)
         if len(items) > 1
+          silent doautocmd QuickFixCmdPre airnote
           call setqflist(items)
+          silent doautocmd QuickFixCmdPost airnote
           echo len(items).' tags found'
         endif
         if g:airnote_auto_foldopen
