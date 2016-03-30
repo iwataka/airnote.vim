@@ -4,11 +4,12 @@
 ==============================================================================
 TOC                                                           *airnote-contents*
 
-  INTRO .......................... |airnote-intro|
-  PHILOSOPHY ..................... |airnote-philosophy|
-  USAGE .......................... |airnote-usage|
-  OPTIONS ........................ |airnote-options|
-  COMMANDS ....................... |airnote-commands|
+    INTRO .......................... |airnote-intro|
+    PHILOSOPHY ..................... |airnote-philosophy|
+    USAGE .......................... |airnote-usage|
+    OPTIONS ........................ |airnote-options|
+    COMMANDS ....................... |airnote-commands|
+    CONFIGURATION................... |airnote-configuration|
 
 ==============================================================================
 INTRO                                                            *airnote-intro*
@@ -30,26 +31,26 @@ get really important things.
 
 Thus, airnote.vim has these philosophies:
 
-  Fast access
-  Less commands and more functionalities
-  Syntax-agnostic (you can write notes with any filetypes)
+    Fast access
+    Less commands and more functionalities
+    Syntax-agnostic (you can write notes with any filetypes)
 
 ==============================================================================
 USAGE                                                            *airnote-usage*
 
 Edit or delete notes with file-name completion
 
-  You can edit a note by this command:
+You can edit a note by this command:
 >
-      :Note [file-name]
+    :Note [file-name]
 <
-  or `:Note` with no arguments and then get a prompt.
+or `:Note` with no arguments and then get a prompt.
 
-  Use `:NoteDelete` command to delete a note.
+    Use `:NoteDelete` command to delete a note.
 
 Search one of your notes by tags with tag-name completion
 
-  You can search the specified note by tags
+You can search the specified note by tags
 >
     :Note @[tag-name]
 <
@@ -181,12 +182,54 @@ add below sentence to `.ctags`.
     --regex-markdown=/^#+\s*(.+)/\1/
 <
 ------------------------------------------------------------------------------
-                                                     *airnote-:NoteDelete*
+                                                           *airnote-:NoteDelete*
 >
     :NoteDelete [file-name]
 <
 Delete an existing note by the specified file name. If the number of arguments
 is 0, this command shows the prompt and you can input the file name.
+
+==============================================================================
+CONFIGURATION                                            *airnote-configuration*
+
+My configuration is here:
+>
+    let g:airnote_enable_cache = 1
+    let g:airnote_suffix = 'note.md' " Define special suffix for notes
+    let g:airnote_date_format = '' " Disable default date insertion
+    let s:airnote_date_format = '%c'
+
+    nnoremap <leader>nn :Note<cr>
+    nnoremap <leader>nd :NoteDelete<cr>
+
+    " When creating new notes, insert two lines like below:
+    " Created: [current date]
+    " Last modified: [current date]
+    fu! s:airnote_bufnewfile()
+      let time1 = strftime('Created: '.s:airnote_date_format)
+      let time2 = strftime('Last modified: '.s:airnote_date_format)
+      call setline(1, printf(&cms, time1))
+      call setline(2, printf(&cms, time2))
+    endfu
+
+    " When saving notes, update the last modified date
+    fu! s:airnote_bufwrite()
+      if &modified
+        let time = strftime('Last modified: '.s:airnote_date_format)
+        call setline(2, printf(&cms, time))
+      endif
+    endfu
+
+    augroup vimrc-airnote
+      autocmd!
+      autocmd BufNewFile *.note.md call s:airnote_bufnewfile()
+      autocmd BufWrite *.note.md call s:airnote_bufwrite()
+      autocmd QuickFixCmdPost airnote cwindow
+    augroup END
+<
+KabbAmine suggested another way to update the date and it is more simple than
+this, but unfortunately, doesn't seem to work on Windows.
+See https://github.com/iwataka/airnote.vim/issues/1 for more details.
 
 ==============================================================================
 vim:tw=78
