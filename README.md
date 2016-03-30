@@ -2,11 +2,6 @@
 
 Simple and fast note-taking plugin for Vim
 
-## **NOTE**
-
-**Airnote is heavily under development and API may be changed without any
-notifications. If you want to use my latest work, clone from `dev` branch.**
-
 ## Introduction
 
 Note-taking is a huge part of your life and a source of your thoughts, so it
