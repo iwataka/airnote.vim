@@ -121,15 +121,17 @@ fu! s:ctags(dir)
 endfu
 
 " Open the specified file by the specified command if it's not active.
-fu! s:open(cmd, fname)
+fu! s:open(fname)
+  let cmd = exists('s:open_cmd') ? s:open_cmd : g:airnote_default_open_cmd
   let fname = fnamemodify(a:fname, ':p')
   if fnamemodify(bufname('%'), ':p') != fname
     let dir = fnamemodify(fname, ':h')
     if g:airnote_auto_mkdir && !isdirectory(dir)
       call mkdir(dir, 'p')
     endif
-    silent exe a:cmd.' '.fname
+    silent exe cmd.' '.fname
   endif
+  unlet! s:open_cmd
 endfu
 
 fu! airnote#open(...)
@@ -156,7 +158,7 @@ fu! airnote#open(...)
       if has_key(s:tags, key)
         let items = s:tags[input[1:-1]]
         let item = items[0]
-        call s:open(s:open_cmd(), item.filename)
+        call s:open(item.filename)
         call search(item.pattern)
         if len(items) > 1
           silent doautocmd QuickFixCmdPre airnote
@@ -183,7 +185,7 @@ fu! airnote#open(...)
         let input .= substitute(g:airnote_suffix, '\v^\.?', '.', '')
       endif
       let path = substitute(g:airnote_path, '\v/?$', '/', '').input
-      call s:open(s:open_cmd(), path)
+      call s:open(path)
       if !filereadable(path)
         let time = strftime(g:airnote_date_format)
         if !empty(time)
@@ -196,7 +198,6 @@ fu! airnote#open(...)
 endfu
 
 fu! s:open_map()
-  unlet! s:open_cmd
   if g:airnote_mappings_enabled
     let s:mappings = {}
     let s:mappings['<cr>'] = maparg('<cr>', 'c')
@@ -227,10 +228,6 @@ fu! s:open_enter(cmd)
   let s:open_cmd = a:cmd
   call feedkeys("\<cr>", 'n')
   return ''
-endfu
-
-fu! s:open_cmd()
-  return exists('s:open_cmd') ? s:open_cmd : g:airnote_default_open_cmd
 endfu
 
 fu! airnote#delete(...)
