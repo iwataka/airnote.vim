@@ -1,8 +1,6 @@
-" INITIALIZATION {{{1
 let s:save_cpo = &cpoptions
 set cpoptions&vim
 
-" SETUP {{{1
 if !exists('g:airnote_path')
   let g:airnote_path = expand('~/notes')
 endif
@@ -39,6 +37,9 @@ endif
 if !exists('g:airnote_cache_path')
   let g:airnote_cache_path = expand('~/.cache/airnote.vim')
 endif
+if !exists('g:airnote_mappings_enabled')
+  let g:airnote_mappings_enabled = 0
+endif
 
 let s:dir2localtime = {}
 let s:dir2tags = {}
@@ -50,7 +51,6 @@ if !isdirectory(g:airnote_cache_path)
   call mkdir(g:airnote_cache_path, 'p')
 endif
 
-" CACHING {{{1
 fu! s:localtime_cache_file()
   return substitute(g:airnote_cache_path, '\v/*$', '', '').'/localtime.txt'
 endfu
@@ -132,15 +132,19 @@ fu! s:open(cmd, fname)
   endif
 endfu
 
-" PUBLIC {{{1
 fu! airnote#open(...)
   unlet! s:tags
   if a:0
     let input = a:1
   else
-    call inputsave()
-    let input = input(g:airnote_open_prompt, '', 'customlist,airnote#open_complete')
-    call inputrestore()
+    try
+      call s:open_map()
+      call inputsave()
+      let input = input(g:airnote_open_prompt, '', 'customlist,airnote#open_complete')
+      call inputrestore()
+    finally
+      call s:open_unmap()
+    endtry
   endif
   if !empty(input)
     " tag jump
@@ -152,7 +156,7 @@ fu! airnote#open(...)
       if has_key(s:tags, key)
         let items = s:tags[input[1:-1]]
         let item = items[0]
-        call s:open(g:airnote_default_open_cmd, item.filename)
+        call s:open(s:open_cmd(), item.filename)
         call search(item.pattern)
         if len(items) > 1
           silent doautocmd QuickFixCmdPre airnote
@@ -179,7 +183,7 @@ fu! airnote#open(...)
         let input .= substitute(g:airnote_suffix, '\v^\.?', '.', '')
       endif
       let path = substitute(g:airnote_path, '\v/?$', '/', '').input
-      call s:open(g:airnote_default_open_cmd, path)
+      call s:open(s:open_cmd(), path)
       if !filereadable(path)
         let time = strftime(g:airnote_date_format)
         if !empty(time)
@@ -189,6 +193,44 @@ fu! airnote#open(...)
       endif
     endif
   endif
+endfu
+
+fu! s:open_map()
+  unlet! s:open_cmd
+  if g:airnote_mappings_enabled
+    let s:mappings = {}
+    let s:mappings['<cr>'] = maparg('<cr>', 'c')
+    let s:mappings['<c-v>'] = maparg('<c-v>', 'c')
+    let s:mappings['<c-x>'] = maparg('<c-x>', 'c')
+    let s:mappings['<c-t>'] = maparg('<c-t>', 'c')
+    cnoremap <expr> <cr> <sid>open_enter('edit')
+    cnoremap <expr> <c-v> <sid>open_enter('vsplit')
+    cnoremap <expr> <c-x> <sid>open_enter('split')
+    cnoremap <expr> <c-t> <sid>open_enter('tabedit')
+  endif
+endfu
+
+fu! s:open_unmap()
+  if exists('s:mappings')
+    for [k, v] in items(s:mappings)
+      if empty(v)
+        exe 'cunmap '.k
+      else
+        exe 'cnoremap '.k.' '.v
+      endif
+    endfor
+    unlet s:mappings
+  endif
+endfu
+
+fu! s:open_enter(cmd)
+  let s:open_cmd = a:cmd
+  call feedkeys("\<cr>", 'n')
+  return ''
+endfu
+
+fu! s:open_cmd()
+  return exists('s:open_cmd') ? s:open_cmd : g:airnote_default_open_cmd
 endfu
 
 fu! airnote#delete(...)
@@ -223,7 +265,6 @@ fu! airnote#delete(...)
   endif
 endfu
 
-" COMPLETION {{{1
 fu! airnote#open_complete(A, L, P)
   if a:A =~ "^@"
     if !exists('s:tags')
@@ -243,6 +284,5 @@ fu! airnote#delete_complete(A, L, P)
         \ 'strpart(v:val, len)')
 endfu
 
-" CLEANUP {{{1
 let &cpo = s:save_cpo
 unlet s:save_cpo
