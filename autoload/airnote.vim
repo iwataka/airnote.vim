@@ -51,6 +51,14 @@ if !isdirectory(g:airnote_cache_path)
   call mkdir(g:airnote_cache_path, 'p')
 endif
 
+fu! s:cd_or_lcd(path)
+  if haslocaldir()
+    exe 'lcd '.a:path
+  else
+    exe 'cd '.a:path
+  endif
+endfu
+
 fu! s:localtime_cache_file()
   return substitute(g:airnote_cache_path, '\v/*$', '', '').'/localtime.txt'
 endfu
@@ -141,11 +149,15 @@ fu! airnote#open(...)
   else
     try
       call s:open_map()
+      let cwd = getcwd()
+      call s:cd_or_lcd(g:airnote_path)
       call inputsave()
-      let input = input(g:airnote_open_prompt, '', 'customlist,airnote#open_complete')
+      let input = input(g:airnote_open_prompt, '', 'file')
       call inputrestore()
     finally
       call s:open_unmap()
+      call s:cd_or_lcd(cwd)
+      unlet cwd
     endtry
   endif
   if !empty(input)
@@ -234,9 +246,16 @@ fu! airnote#delete(...)
   if a:0
     let fname = a:1
   else
-    call inputsave()
-    let fname = input(g:airnote_delete_prompt, '', 'customlist,airnote#delete_complete')
-    call inputrestore()
+    try
+      let cwd = getcwd()
+      call s:cd_or_lcd(g:airnote_path)
+      call inputsave()
+      let fname = input(g:airnote_delete_prompt, '', 'file')
+      call inputrestore()
+    finally
+      call s:cd_or_lcd(cwd)
+      unlet cwd
+    endtry
   endif
   if !empty(fname)
     if empty(fnamemodify(fname, ':e'))
