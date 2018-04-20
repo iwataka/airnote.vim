@@ -152,7 +152,7 @@ fu! airnote#open(...)
       let cwd = getcwd()
       call s:cd_or_lcd(g:airnote_path)
       call inputsave()
-      let input = input(g:airnote_open_prompt, '', 'file')
+      let input = input(g:airnote_open_prompt, '', 'customlist,airnote#open_complete')
       call inputrestore()
     finally
       call s:open_unmap()
@@ -250,7 +250,7 @@ fu! airnote#delete(...)
       let cwd = getcwd()
       call s:cd_or_lcd(g:airnote_path)
       call inputsave()
-      let fname = input(g:airnote_delete_prompt, '', 'file')
+      let fname = input(g:airnote_delete_prompt, '', 'customlist,airnote#open_complete')
       call inputrestore()
     finally
       call s:cd_or_lcd(cwd)
@@ -286,7 +286,7 @@ fu! airnote#open_complete(A, L, P)
     if !exists('s:tags')
       let s:tags = s:ctags(g:airnote_path)
     endif
-    return map(filter(keys(s:tags), 'v:val =~ a:A[1:-1]'), '"@".v:val')
+    return filter(map(keys(s:tags), '"@".v:val'), 'v:val =~ a:A')
   else
     return airnote#delete_complete(a:A, a:L, a:P)
   endif
