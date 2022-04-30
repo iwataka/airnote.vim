@@ -252,4 +252,4 @@ this, but unfortunately, doesn't seem to work on Windows.
 See https://github.com/iwataka/airnote.vim/issues/1 for more details.
 
 ==============================================================================
-vim:tw=78
+vim:ft=help:tw=78
