@@ -85,12 +85,14 @@ endfu
 
 augroup airnote
   autocmd!
+  autocmd VimEnter * if g:airnote_enable_cache | call s:read_cache() | endif
   autocmd VimLeave * if g:airnote_enable_cache | call s:write_cache() | endif
 augroup END
 
-if g:airnote_enable_cache
-  call s:read_cache()
-endif
+fu! airnote#delete_cache()
+  let s:dir2localtime = {}
+  let s:dir2tags = {}
+endfu
 
 fu! s:ctags(dir)
   " Remove trailing slashes

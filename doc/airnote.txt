@@ -157,10 +157,10 @@ This is unused when `g:airnote_enable_cache` is equal to 0 or undefined.
 <
 If this value is 1, the following mappings is enabled in the prompt shown by
 `:Note` command:
-    + <cr>: Open the specified note in the current pane
-    + <c-v>: Open the specified note in vertically splitted pane
-    + <c-x>: Open the specified note in horizontally splitted pane
-    + <c-t>: Open the specified note in new tab
+    - <cr>: Open the specified note in the current pane
+    - <c-v>: Open the specified note in vertically splitted pane
+    - <c-x>: Open the specified note in horizontally splitted pane
+    - <c-t>: Open the specified note in new tab
 This mappings imitates CtrlP's ones.
 
 ==============================================================================
@@ -201,10 +201,17 @@ add below sentence to `.ctags`.
 Delete an existing note by the specified file name. If the number of arguments
 is 0, this command shows the prompt and you can input the file name.
 
+------------------------------------------------------------------------------
+                                                      *airnote-:NoteCacheDelete*
+>
+    :NoteCacheDelete
+<
+Delete a cache of this plugin, which includes ctags infomation.
+
 ==============================================================================
 CONFIGURATION                                            *airnote-configuration*
 
-My configuration is here:
+Sample configuration is here:
 >
     let g:airnote_enable_cache = 1
     let g:airnote_suffix = 'note.md' " Define special suffix for notes

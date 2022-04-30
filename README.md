@@ -20,15 +20,16 @@ get really important things.
 
 Thus, airnote.vim has these philosophies:
 
-+ Fast access
-+ Less commands and more functionalities
-+ Syntax-agnostic (you can write notes with any filetypes)
+- Fast access
+- Less commands and more functionalities
+- Syntax-agnostic (you can write notes with any filetypes)
 
 ## Usage
 
-+ Edit or delete notes with file-name completion
+- Edit or delete notes with file-name completion
 
     You can edit a note by this command:
+
     ```vim
     :Note [file-name]
     ```
@@ -36,9 +37,10 @@ Thus, airnote.vim has these philosophies:
 
     Use `:NoteDelete` command to delete a note.
 
-+ Search one of your notes by tags with tag-name completion
+- Search one of your notes by tags with tag-name completion
 
     You can search the specified note by tags
+
     ```vim
     :Note @[tag-name]
     ```
@@ -56,11 +58,12 @@ Thus, airnote.vim has these philosophies:
 
 I recommend to use [vim-plug](https://github.com/junegunn/vim-plug/) if you
 don't have your favorite plug-in manager.
+
 ```vim
 Plug 'iwataka/airnote.vim', { 'on': ['Note', 'NoteDelete'] }
 ```
 
 ## Related Projects
 
-+ [memolist](https://github.com/glidenote/memolist.vim)
-+ [vim-notes](https://github.com/xolox/vim-notes)
+- [memolist](https://github.com/glidenote/memolist.vim)
+- [vim-notes](https://github.com/xolox/vim-notes)
